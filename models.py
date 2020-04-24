@@ -8,6 +8,10 @@ class Users(db.Model):
       username = db.Column(db.String, nullable = False)
       password = db.Column(db.String, nullable = False)
 
+      def __init__(self, username, password):
+          self.username = username
+          self.password = password
+
 class Books(db.Model):
       _tablename_ = "books"
       id = db.Column(db.Integer, primary_key=True)

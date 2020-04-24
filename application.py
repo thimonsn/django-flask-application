@@ -1,7 +1,7 @@
 import os
 import requests
 from models import *
-from flask import Flask, session
+from flask import Flask, session, render_template, request
 from flask_session import Session
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
@@ -31,7 +31,33 @@ def main():
 
 @app.route("/")
 def index():
-    return "Hi"
+    return render_template("index.html")
+
+@app.route("/login", methods=["POST"])
+def login():
+    name = request.form.get("name")
+    password = request.form.get("password")
+
+    try:
+        user = users.query.filter_by(name = name).first()
+        if password == user.password and user is not None:
+            return "Logged in as " + name
+    except ValueError:
+        return "Login Failed"
+
+
+@app.route("/register", methods=["POST"])
+def register():
+    name = request.form.get("name")
+    password = request.form.get("password")
+
+    if name is not None and password is not None:
+        new_user = Users(name, password)
+        db.session.add(new_user)
+        db.session.commit()
+        #return "Register successful"
+        return  name + " " + password
+    return "Invalid Credentials"
 
 if __name__ == "__main__":
     with app.app_context():
