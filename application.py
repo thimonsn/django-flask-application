@@ -3,8 +3,9 @@ import requests
 from models import *
 from flask import Flask, session, render_template, request
 from flask_session import Session
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, or_
 from sqlalchemy.orm import scoped_session, sessionmaker
+
 
 app = Flask(__name__)
 # Check for environment variable
@@ -39,12 +40,25 @@ def login():
     password = request.form.get("password")
 
     try:
-        user = users.query.filter_by(name = name).first()
-        if password == user.password and user is not None:
-            return "Logged in as " + name
+        user = Users.query.filter_by(username=name).first()
+        if user is not None and password == user.password:
+            return render_template("books.html", user=user)
     except ValueError:
         return "Login Failed"
 
+@app.route("/search", methods=["POST"])
+def search():
+    search = request.form.get("book")
+
+    try:
+        # Category.query.filter_by(title=Category.title.like("category_param_value %"))
+        result = Books.query.filter(or_(Books.isbn.contains(search),Books.title.contains(search)))
+        print("___________________________________________")
+        print(search)
+        print(result)
+        return render_template("books.html", result=result)
+    except ValueError:
+        return "Search Failed"
 
 @app.route("/register", methods=["POST"])
 def register():

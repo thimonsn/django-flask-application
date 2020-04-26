@@ -18,8 +18,15 @@ class Books(db.Model):
       isbn = db.Column(db.String, nullable = False)
       title = db.Column(db.String, nullable = False)
       author = db.Column(db.String, nullable = False)
-      year = db.Column(db.Integer, nullable = False)
-      reviews = db.Column(db.Integer,db.ForeignKey("reviews.id"), nullable = False)
+      year = db.Column(db.String, nullable = False)
+      reviews = db.Column(db.Integer, db.ForeignKey("reviews.id"), nullable = True)
+
+      def __init__(self, isbn, title, author, year):
+          self.isbn = isbn
+          self.title = title
+          self.author = author
+          self.year = year
+          self.reviews = None
 
 class Reviews(db.Model):
       _tablename_ = "reviews"
