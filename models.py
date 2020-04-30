@@ -21,6 +21,12 @@ class Books(db.Model):
       year = db.Column(db.Integer, nullable = False)
       reviews = db.Column(db.Integer,db.ForeignKey("reviews.id"), nullable = False)
 
+      def __init__(self, isbn, title, author, year):
+          self.isbn = isbn
+          self.title = title
+          self.author = author
+          self.year = year
+
 class Reviews(db.Model):
       _tablename_ = "reviews"
       id = db.Column(db.Integer, primary_key=True)

@@ -39,7 +39,7 @@ def login():
     password = request.form.get("password")
 
     try:
-        user = users.query.filter_by(name = name).first()
+        user = db.Users.query.filter_by(name).first()
         if password == user.password and user is not None:
             return "Logged in as " + name
     except ValueError:
