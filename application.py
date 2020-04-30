@@ -40,15 +40,9 @@ def login():
     password = request.form.get("password")
 
     try:
-<<<<<<< HEAD
-        user = db.Users.query.filter_by(name).first()
-        if password == user.password and user is not None:
-            return "Logged in as " + name
-=======
         user = Users.query.filter_by(username=name).first()
         if user is not None and password == user.password:
             return render_template("books.html", user=user)
->>>>>>> 81132a8d88436d78eee280ef00194a8658363606
     except ValueError:
         return "Login Failed"
 
@@ -58,13 +52,34 @@ def search():
 
     try:
         # Category.query.filter_by(title=Category.title.like("category_param_value %"))
-        result = Books.query.filter(or_(Books.isbn.contains(search),Books.title.contains(search)))
-        print("___________________________________________")
-        print(search)
-        print(result)
+        result = Books.query.filter(or_(Books.title.ilike(f"%{search}%"), Books.isbn.ilike(f"%{search}%"),
+        Books.author.ilike(f"%{search}%")))
         return render_template("books.html", result=result)
     except ValueError:
         return "Search Failed"
+
+@app.route("/search/<isbn>", methods=["GET"])
+def book(isbn):
+    try:
+        # Category.query.filter_by(title=Category.title.like("category_param_value %"))
+        result = Books.query.filter_by(isbn=isbn).first()
+        review = Reviews.query.filter_by(book=9)
+        print(result)
+        return render_template("details.html", result=result, review=review)
+    except ValueError:
+        return "Select Failed"
+
+@app.route("/review", methods=["POST"])
+def review():
+    review = request.form.get("review")
+    rating = request.form.get("rating")
+    bookId = request.form.get("bookId")
+
+    new_review = Reviews(rating, review, 1, bookId)
+    db.session.add(new_review)
+    db.session.commit()
+    return render_template("books.html")
+
 
 @app.route("/register", methods=["POST"])
 def register():
