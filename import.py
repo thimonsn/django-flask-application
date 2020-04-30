@@ -16,10 +16,19 @@ def dbimport():
     file = open("books.csv")
     reader = csv.reader(file)
 
+<<<<<<< HEAD
     for isbn,title,author,year in reader:
         book = Books(isbn, title, author, year)
         db.session.add(book)
         print(book.title)
+=======
+    counter = 0
+    for isbn,title,author,year in reader:
+        book = Books(isbn, title, author, year)
+        counter += 1
+        db.session.add(book)
+        print(book.title + " " + str(counter))
+>>>>>>> 81132a8d88436d78eee280ef00194a8658363606
         db.session.commit()
 
 if __name__ == "__main__":
