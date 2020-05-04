@@ -5,6 +5,8 @@ from flask import Flask, session, render_template, request, jsonify
 from flask_session import Session
 from sqlalchemy import create_engine, or_
 from sqlalchemy.orm import scoped_session, sessionmaker
+from sqlalchemy.sql import func
+import json
 
 
 app = Flask(__name__)
@@ -16,7 +18,6 @@ if not os.getenv("DATABASE_URL"):
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 app.secret_key = 'key'
-
 app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL")
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db.init_app(app)
@@ -44,7 +45,6 @@ def login():
 @app.route("/logout")
 def logout():
     user = session.get('user_id')
-
     if user:
         session.pop('user_id')
         return render_template("index.html")
@@ -71,21 +71,35 @@ def book(isbn):
     json = api.json()
     average_rating = json['books'][0]['average_rating']
     ratings_count = json['books'][0]['ratings_count']
-    print(json)
-    print("??????????????????????????????????????")
     try:
         result = Books.query.filter_by(isbn=isbn).first()
         review = Reviews.query.filter_by(book=result.id)
-        print("FUCK SHIT" + isbn)
-
         return render_template("details.html", result=result, review=review, average_rating=average_rating, ratings_count=ratings_count)
+    except ValueError:
+        return "Select Failed"
+
+@app.route("/api/<isbn>", methods=["GET"])
+def isbn(isbn):
+    try:
+        result = Books.query.filter_by(isbn=isbn).first()
+        review = Reviews.query.filter_by(book=result.id)
+        review_count = review.count()
+        rating_sum = 0
+        for a in review:
+            rating_sum += a.rating
+        avg_rating = rating_sum/review_count
+        j = {"title":result.title, "author":result.author, "year":int(result.year), "isbn":result.isbn, "review_count":review_count, "average_rating":avg_rating}
+        j = json.dumps(j)
+        return j
+        #return render_template("details.html", result=result, review=review)
     except ValueError:
         return "Select Failed"
 
 @app.route("/review", methods=["POST"])
 def review():
     bookId = request.form.get("bookId")
-    can_review = Reviews.query.filter_by(user=1, book=bookId).first()
+    user = session.get('user_id')
+    can_review = Reviews.query.filter_by(user=user, book=bookId).first()
     print(can_review)
 
     if not can_review:
