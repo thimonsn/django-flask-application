@@ -62,8 +62,6 @@ def search():
 
 @app.route("/search/<isbn>", methods=["GET"])
 def book(isbn):
-    x = isbn
-    print("isbn: " + x)
     list = [isbn]
     api = requests.get("https://www.goodreads.com/book/review_counts.json",
     params={"key": "B30LyGpK2OdNTH7HQlEpA", "isbns": list})
@@ -91,7 +89,6 @@ def isbn(isbn):
         j = {"title":result.title, "author":result.author, "year":int(result.year), "isbn":result.isbn, "review_count":review_count, "average_rating":avg_rating}
         j = json.dumps(j)
         return j
-        #return render_template("details.html", result=result, review=review)
     except ValueError:
         return "Select Failed"
 
@@ -100,7 +97,6 @@ def review():
     bookId = request.form.get("bookId")
     user = session.get('user_id')
     can_review = Reviews.query.filter_by(user=user, book=bookId).first()
-    print(can_review)
 
     if not can_review:
         user = session.get('user_id')
@@ -124,7 +120,6 @@ def register():
         new_user = Users(name, password)
         db.session.add(new_user)
         db.session.commit()
-        #return "Register successful"
         return  name + " " + password
     return "Invalid Credentials"
 
