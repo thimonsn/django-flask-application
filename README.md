@@ -1,3 +1,3 @@
-# Django Flask Application
+# Flask Application
 
 Web Programming with Python and JavaScript
